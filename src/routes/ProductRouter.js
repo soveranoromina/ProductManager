@@ -4,8 +4,8 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
     try {
-        const product = await productManager.getProducts();
-        res.json(product);
+        const products = await productManager.getProducts();
+        res.json(products);
     } catch (error) {
         next(error);
     }
@@ -14,6 +14,10 @@ router.get("/", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
     try {
         const product = await productManager.addProduct(req.body);
+
+        const io = req.app.get("socketServer");
+        io.emit("product", product)
+
         res.json(product);
     } catch (error) {
         next(error);
@@ -45,7 +49,12 @@ router.delete("/:id", async (req, res, next) => {
     try {
         const { id } = req.params;
         const product = await productManager.deleteProduct(id);
+
+        const io = req.app.get("socketServer");
+        io.emit("product", product)
+
         res.json(product);
+
     } catch (error) {
         next(error);
     }
