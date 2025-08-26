@@ -28,12 +28,11 @@ async function deleteProduct(id, div) {
     const response = await fetch(`/api/products/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({socketId: socket.id})
     });
-    if (!response.ok) throw new Error(`Error al eliminar producto: ${response.statusText}`);
     div.remove();
-    console.log(`Producto ${id} eliminado correctamente`);
   } catch (err) {
-    console.error("Error en la solicitud fetch:", err);
+    console.error("Error en el DELETE:", err);
   }
 }
 
@@ -50,19 +49,22 @@ form.onsubmit = async (e) => {
     category: document.getElementById("category").value,
     thumbnails: document.getElementById("thumbnails").value.split(",").map(url => url.trim()).filter(url => url !== "")   
   };
-   console.log(data)
   try {
     await fetch("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, socketId: socket.id }),
     })
   } catch (err) {
-    console.error("Error en la solicitud fetch:", err);
+    console.error("Error en el POST:", err);
   }
 };
 
-socket.on('product', (product) => {
+socket.on('newProduct', (product) => {
   const div = createProductDiv(product);
   prods.appendChild(div);
+});
+
+socket.on('deletedProduct', (message) => {
+  console.log(message)
 });
