@@ -16,9 +16,14 @@ router.post("/", async (req, res, next) => {
         const product = await productManager.addProduct(req.body);
 
         const io = req.app.get("socketServer");
-        io.emit("product", product)
+        const { socketId } = req.body;
+        if (socketId) {
+            io.to(socketId).emit('newProduct', product);
+        }
+        io.emit('alertProduct', `Se ha añadido el producto ${product.id}`);
 
         res.json(product);
+
     } catch (error) {
         next(error);
     }
@@ -49,9 +54,13 @@ router.delete("/:id", async (req, res, next) => {
     try {
         const { id } = req.params;
         const product = await productManager.deleteProduct(id);
-
+        console.log(product)
         const io = req.app.get("socketServer");
-        io.emit("product", product)
+        const { socketId } = req.body;
+        if (socketId) {
+            io.to(socketId).emit('deletedProduct', 'Producto eliminado');
+        }
+        io.emit('alertProduct');
 
         res.json(product);
 
