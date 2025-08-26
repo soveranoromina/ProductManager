@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "npm i express",
+    "build": "npm i express express-handlebars socket.io",
     "start": "node --watch ./src/server.js"
   },
   "keywords": [],
