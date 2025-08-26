@@ -28,7 +28,8 @@ async function getProducts() {
   }
 }
 
-socket.on('product', () => {
+socket.on('alertProduct', (message) => {
+  console.log(message)
   getProducts();
 });
 
