@@ -7,6 +7,12 @@ function createProductText(product) {
   return p;
 }
 
+function createProductDiv(product) {
+  const div = document.createElement("div");
+  div.appendChild(createProductText(product));
+  return div;
+}
+
 async function getProducts() {
   try {
     const response = await fetch("/api/products", {
@@ -14,12 +20,12 @@ async function getProducts() {
       headers: { "Content-Type": "application/json" },
     });
     const products = await response.json();
-      console.log(products)
+    console.log(products);
 
     prods.innerHTML = "";
 
     products.forEach(p => {
-      const div = createProductText(p);
+      const div = createProductDiv(p);
       prods.appendChild(div);
     });
 
