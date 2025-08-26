@@ -1,0 +1,16 @@
+<form id="form">
+    <label for="title">title: </label><input type="text" name="title" id="title" value="TEST">
+    <label for="description">description: </label><input type="text" name="description" id="description" value="TEST">
+    <label for="code">code: </label><input type="text" name="code" id="code" value="TEST">
+    <label for="price">price: </label><input type="number" name="price" id="price" value=1>
+    <label for="status">status: </label><input type="checkbox" name="status" id="status">
+    <label for="stock">stock: </label><input type="number" name="stock" id="stock" value=11>
+    <label for="category">category: </label><input type="text" name="category" id="category" value="Alimentos">
+    <label for="thumbnails">thumbnails: </label><input type="text" name="thumbnails" id="thumbnails" value="Alimentos.png">
+    <input type="submit" value="SEND">
+</form>
+
+<div id="prods"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/realTimeProducts.js"></script>
