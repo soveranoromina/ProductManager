@@ -31,7 +31,7 @@ Implementar dos vistas para gestionar productos mediante WebSockets:
 El proyecto debe configurarse para utilizar Handlebars como motor de plantillas y Socket.io para la comunicación en tiempo real. Además, el servidor debe emitir eventos desde las operaciones HTTP (por ejemplo, POST) para mantener sincronizadas ambas vistas en tiempo real.
 
 Las vistas estarán disponibles en `http://localhost:8080/views` con los siguientes endpoints:
-- `realTimeProducts /realTimeProducts` - Formulario en tiempo real utilizando websockets + HTTP en tiempo real por el id de conexión.
+- `realTimeProducts /realTimeProducts` - Formulario utilizando websockets + HTTP en tiempo real por el id de conexión.
 - `home /home` - Listado en tiempo real de todos los productos ingresados.
 
 ## Build
