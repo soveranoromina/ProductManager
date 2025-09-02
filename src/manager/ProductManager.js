@@ -1,6 +1,7 @@
 import { validator } from "../domain/shared/Validator.js"
 import { workWithfile } from "../infraestructure/repositories/WorkWithFiles.js"
 import { Factory } from "../domain/factories/Factory.js"
+import { mongoDBManager } from "../infraestructure/repositories/MongoDBRepository.js"
 
 class ProductManager {
     constructor(path) {
@@ -34,13 +35,14 @@ class ProductManager {
             const id = validator.generateId(products)
             const productValidate = Factory.create("product", id, object, "add")
             const newProduct = { ...productValidate }
-            products.push(newProduct)
-            await workWithfile.writeFile(this.path, JSON.stringify(products, null, 2))
 
-            return {
-                product: newProduct,
-                status: "new"
-            }
+            console.log(newProduct)
+            const productCreated = await mongoDBManager.createProduct(newProduct)
+            
+             return {
+                 product: productCreated,
+                 status: "new"
+             }
 
         } catch (error) {
             throw error
