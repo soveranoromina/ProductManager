@@ -20,10 +20,9 @@ router.post("/", async (req, res, next) => {
         if (socketId) {
             io.to(socketId).emit('newProduct', product);
         }
-        io.emit('alertProduct', `Se ha añadido el producto ${product.id}`);
+        io.emit('alertProduct', `Se ha añadido el producto ${product._id}`);
 
         res.json(product);
-
     } catch (error) {
         next(error);
     }
