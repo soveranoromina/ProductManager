@@ -1,11 +1,10 @@
 import { validator } from "../shared/Validator.js";
 
 export class ProductEntity {
-    constructor(id, {title, description, code, price, status, stock, category, thumbnails }, method) {
+    constructor({title, description, code, price, status, stock, category, thumbnails }, method) {
 
         const fields = { title, description, code, price, status, stock, category, thumbnails }
 
-        this.id = id;
         this.title = title;
         this.description = description;
         this.code = code;
