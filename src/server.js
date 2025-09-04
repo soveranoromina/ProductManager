@@ -5,7 +5,7 @@ import cartRouter from "./routes/CartRouter.js";
 import viewRouter from "./routes/ViewRouter.js"
 import { Server } from "socket.io";
 import handlebars from 'express-handlebars';
-import path from 'path'
+import { connection } from "./infraestructure/database/MongoDBConnection.js";
 
 const app = express();
 
@@ -23,6 +23,8 @@ app.engine('handlebars', handlebars.engine());
 app.set("views", `${process.cwd()}/src/views`);
 app.set("view engine", 'handlebars');
 app.use('/views', viewRouter);
+
+connection.initLocalMongoDB()
 
 const httpServer =  app.listen(8080, () => console.log("Servidor escuchando en el puerto 8080"));
 
