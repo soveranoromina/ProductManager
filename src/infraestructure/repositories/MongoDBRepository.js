@@ -1,5 +1,5 @@
 export class MongoDBRepository {
-    constructor(model){
+    constructor(model) {
         this.model = model
     }
     create = async (product) => {
@@ -9,9 +9,9 @@ export class MongoDBRepository {
             throw error;
         }
     }
-    getAll = async () => {
+    getAll = async (filter, params) => {
         try {
-            return await this.model.find({});
+            return await this.model.paginate(filter, params);
         } catch (error) {
             throw error;
         }
@@ -28,6 +28,15 @@ export class MongoDBRepository {
             return await this.model.findByIdAndDelete(id);
         } catch (error) {
             throw error;
+        }
+    }
+    update = async (id, product) =>{
+        try {
+            return await this.model.findByIdAndUpdate(id, product, {
+                new: true,
+            });
+        } catch (error) {
+            throw error
         }
     }
 }
