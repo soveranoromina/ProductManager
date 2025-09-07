@@ -5,16 +5,27 @@ import { MongoDBRepository } from "../infraestructure/repositories/MongoDBReposi
 import { ProductModel } from "../infraestructure/database/models/ProductModel.js"
 
 class ProductManager {
-    
-  constructor() {
-    this.productRepository = new MongoDBRepository(ProductModel);
-  }
 
-    getProducts = async () => {
-        const products = await this.productRepository.getAll()
-        if (products.length === 0) throw new Error("No existen productos")
-        return products
+    constructor() {
+        this.productRepository = new MongoDBRepository(ProductModel);
     }
+
+    getProducts = async (page = 1, limit = 10, filter = {}, sort) => {
+        try {
+            const filterQuery = {} ? filter = {} : filter.filter
+            let sortOrder = {};
+            if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null; }
+            const params = {
+                page,
+                limit,
+                sort: sortOrder,
+            };
+            const products = await this.productRepository.getAll(filterQuery, params);
+            return products;
+        } catch (error) {
+            throw new Error(error);
+        }
+    };
 
     getProductById = async (id) => {
         try {
@@ -30,9 +41,7 @@ class ProductManager {
         try {
             validator.isEmpty(object)
             const productValidate = Factory.create("product", object, "add")
-            const newProduct = { ...productValidate }
-
-            const product = await this.productRepository.create(newProduct)
+            const product = await this.productRepository.create(productValidate)
             return product
 
         } catch (error) {
@@ -43,23 +52,17 @@ class ProductManager {
 
     updateProduct = async (id, object) => {
         try {
-
             validator.isEmpty(object)
             if ('id' in object) throw new Error("No se puede modificar el campo 'id'")
-
-            const products = await this.getProducts()
-            await this.getProductById(id)
-
-            const i = products.findIndex(p => p.id === Number(id))
-            const product = { ...products[i], ...object }
-
-            Factory.create("product", id, product, "update")
-            products[i] = product
-
-            await workWithfile.writeFile(this.path, JSON.stringify(products, null, 2))
-
-            return product
-
+            const product = await this.getProductById(id)
+            let updateProduct = { ...product }
+            for (const key of Object.keys(object)) {
+                updateProduct[key] = object[key];
+            }
+            const productValidate = Factory.create("product", updateProduct, "update")
+            updateProduct = await this.productRepository.update(id, productValidate)
+            return updateProduct
+            
         } catch (error) {
             throw error
         }
