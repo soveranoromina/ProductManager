@@ -1,5 +1,5 @@
 import { validator } from "../domain/shared/Validator.js"
-import { workWithfile } from "../infraestructure/repositories/WorkWithFiles.js"
+// import { workWithfile } from "../infraestructure/repositories/WorkWithFiles.js"
 import { Factory } from "../domain/factories/Factory.js"
 import { MongoDBRepository } from "../infraestructure/repositories/MongoDBRepository.js"
 import { ProductModel } from "../infraestructure/database/models/ProductModel.js"
@@ -79,4 +79,4 @@ class ProductManager {
 
 }
 
-export const productManager = new ProductManager('./src/infraestructure/data/products.json')
+export const productManager = new ProductManager()
