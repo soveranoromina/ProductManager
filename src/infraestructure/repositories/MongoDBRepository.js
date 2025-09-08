@@ -2,9 +2,9 @@ export class MongoDBRepository {
     constructor(model) {
         this.model = model
     }
-    create = async (product) => {
+    create = async (object) => {
         try {
-            return await this.model.create(product);
+            return await this.model.create(object);
         } catch (error) {
             throw error;
         }
@@ -30,9 +30,9 @@ export class MongoDBRepository {
             throw error;
         }
     }
-    update = async (id, product) =>{
+    update = async (id, object) =>{
         try {
-            return await this.model.findByIdAndUpdate(id, product, {
+            return await this.model.findByIdAndUpdate(id, object, {
                 new: true,
             });
         } catch (error) {
