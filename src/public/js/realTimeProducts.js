@@ -193,7 +193,7 @@ form.onsubmit = async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...data, socketId: socket.id }),
     });
-
+    console.log(response)
     if (!response.ok) {
       const errorData = await response.json();
       const message = `Error del backend: ${errorData.message}`

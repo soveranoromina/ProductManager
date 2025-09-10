@@ -1,19 +1,20 @@
 const socket = io();
 const prods = document.getElementById('prods');
 const pagination = document.getElementById('pagination');
-let currentUrl = "/api/products"
+let currentUrl = "/api/products/all"
 let cartID = ""
+const cartDiv = document.getElementById('cart');
 
 function createProductDescription(product) {
   const p = document.createElement("p");
-  p.textContent = `\n -${product.description}\n -${product.category}\n -${product.stock}`;
+  p.textContent = `\n • ${product.description}\n • ${product.category}\n • ${product.stock}`;
   p.style.whiteSpace = "pre-line";
   return p;
 }
 
 function createProductTitle(product) {
   const h = document.createElement("h3");
-  h.textContent = `${product.title}`;
+  h.textContent = `${product.title} \t $${product.price}`;
   h.style.whiteSpace = "pre-line";
   return h;
 }
@@ -21,7 +22,7 @@ function createProductTitle(product) {
 function addToCartBTN(pid) {
   const btn = document.createElement("button");
   btn.id = pid;
-  btn.textContent = "add to cart";
+  btn.textContent = "+";
   btn.style.whiteSpace = "inline";
 
   btn.addEventListener("click", async () => {
@@ -51,7 +52,7 @@ async function createCart() {
 
 async function addProductToCart(pid) {
   try {
-    const response = await fetch(`/api/carts/${cartID}/product/${pid}`, {
+    const response = await fetch(`/api/carts/${cartID}/product/${pid}?socket=${socket.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" }
     });
@@ -74,9 +75,10 @@ function createProductDiv(product) {
 async function getProducts(url = currentUrl) {
   try {
     currentUrl = url;
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
+    console.log(url)
+    const response = await fetch(`${url}?sort=asc`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
     });
 
     const products = await response.json();
@@ -89,27 +91,73 @@ async function getProducts(url = currentUrl) {
     });
 
     pagination.innerHTML = "";
+
+    if (products.prevLink) {
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "🡰";
+      prevBtn.onclick = () => getProducts(products.prevLink);
+      pagination.appendChild(prevBtn);
+    } else {
+      const span = document.createElement("span");
+      pagination.appendChild(span);
+    }
+
     if (products.nextLink) {
       const nextBtn = document.createElement("button");
-      nextBtn.textContent = "Pagina siguiente >";
+      nextBtn.textContent = "🡲";
       nextBtn.onclick = () => getProducts(products.nextLink);
       pagination.appendChild(nextBtn);
     }
-    if (products.prevLink) {
-      const prevBtn = document.createElement("button");
-      prevBtn.textContent = "< Pagina anterior";
-      prevBtn.onclick = () => getProducts(products.prevLink);
-      pagination.appendChild(prevBtn);
-    }
+
 
   } catch (err) {
     console.error("Error en la solicitud fetch:", err);
   }
 }
 
+async function getCart(cartId) {
+  try {
+    const response = await fetch(`/api/carts/${cartId}`);
+    if (!response.ok) throw new Error("Error al obtener el carrito");
+
+    const products = await response.json();
+    const cartDiv = document.getElementById("cart");
+
+    cartDiv.innerHTML = "<h3>🛒 Carrito</h3>";
+    let total = 0;
+    if (!products || products.length === 0) {
+      cartDiv.innerHTML += "<p>Tu carrito está vacío</p>";
+      return;
+    }
+
+    const ul = document.createElement("ul");
+    products.forEach(p => {
+      const li = document.createElement("li");
+      li.textContent = `${p.id.title} - $${p.id.price} | cantidad: ${p.quantity}`;
+      ul.appendChild(li);
+      total += p.id.price * p.quantity;
+    });
+
+    cartDiv.appendChild(ul);
+    const totalDiv = document.createElement("p");
+    totalDiv.style.fontWeight = "bold";
+    totalDiv.textContent = `💰 Total: $${total.toFixed(2)}`;
+    cartDiv.appendChild(totalDiv);
+
+  } catch (error) {
+    console.error("Error cargando carrito:", error);
+  }
+}
+
+
 socket.on('alertProduct', (message) => {
   console.log(message);
   getProducts();
+});
+
+socket.on('productAdded', (message, cart) => {
+  console.log(message, cart._id);
+  getCart(cart._id)
 });
 
 window.addEventListener("DOMContentLoaded", () => getProducts());
