@@ -1,66 +1,74 @@
-import { Router } from "express";
-import { cartManager } from "../manager/CartManager.js";
-const router = Router();
+import { Router } from "express"
+import { cartManager } from "../manager/CartManager.js"
+const router = Router()
 
-router.get("/", async (req, res, next) => {
-    try {
-        const { page, limit, sort } = req.query;
-        const filter = req.body;
-        const response = await cartManager.getCarts(page, limit, filter, sort);
-        const nextPage = response.hasNextPage
-            ? `http://localhost:8080/api/carts?page=${response.nextPage}`
-            : null;
-        const prevPage = response.hasPrevPage
-            ? `http://localhost:8080/api/carts?page=${response.prevPage}`
-            : null;
-        res.json({
-            payload: response.docs,
-            count: response.totalDocs,
-            totalPages: response.totalPages,
-            prevPage: response.prevPage,
-            nextPage: response.nextPage,
-            page: response.page,
-            hasPrevPage: response.hasPrevPage,
-            hasNextPage: response.hasNextPage,
-            nextLink: nextPage,
-            prevLink: prevPage,
-        });
-    } catch (error) {
-        next(error);
-    }
+router.get("/:id", async (req, res, next) => {
+  try {
+    const cart = await cartManager.getProductsFromCart(req.params.id)
+    res.json(cart)
+  } catch (error) {
+    next(error)
+  }
 })
 
 router.post("/", async (req, res, next) => {
   try {
-    const cart = await cartManager.createCart();
-    res.json(cart);
+    const cart = await cartManager.createCart()
+    res.json(cart)
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
-
-router.get("/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const cart = await cartManager.getProductsFromCart(id);
-    res.json(cart);
-  } catch (error) {
-    next(error);
-  }
-});
+})
 
 router.post("/:cid/product/:pid", async (req, res, next) => {
-    try {
-        const cid = req.params.cid
-        const pid = req.params.pid
-        const cart = await cartManager.addProductToCart(cid, pid);
-        const io = req.app.get("socketServer");
-        io.emit('alertCart', `Se ha añadido el carrito ${cart._id}`);
-        res.json(cart);
-
-    } catch (error) {
-        next(error);
+  try {
+    const socketId = req.query.socket
+    const cart = await cartManager.addProductToCart(req.params.cid, req.params.pid, req.query.quantity)
+    const io = req.app.get("socketServer")
+    if (socketId) {
+      io.to(socketId).emit('productAdded', `Producto con el id ${req.params.pid} agregado al carrito ${req.params.cid}`, cart)
     }
-});
+    res.json(cart)
+  } catch (error) {
+    next(error)
+  }
+})
 
-export default router;
+router.put("/:cid", async (req, res, next) => {
+  try {
+    const cart = await cartManager.updateProductsFromCart(req.params.cid, req.body)
+    res.json(cart)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.delete("/:cid/product/:pid", async (req, res, next) => {
+  try {
+    const socketId = req.query.socket
+    const cart = await cartManager.deleteProductFromCart(req.params.cid, req.params.pid, req.query.quantity)
+    const io = req.app.get("socketServer")
+    if (socketId) {
+      io.to(socketId).emit('productDeleted', `Producto con el id ${pid} fue eliminado del carrito ${cid}`, cart)
+    }
+    res.json(cart)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.delete("/:cid", async (req, res, next) => {
+  try {
+    const socketId = req.query.socket
+    const cart = await cartManager.deleteAllProducts(req.params.cid)
+    const io = req.app.get("socketServer")
+    if (socketId) {
+      io.to(socketId).emit('productsDeleted', `Carrito vaciado`, cart)
+    }
+    res.json(cart)
+  } catch (error) {
+    next(error)
+  }
+})
+
+export default router
