@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "npm i express express-handlebars socket.io mongoose mongoose-paginate-v2 dotenv",
-    "start": "node --watch ./src/server.js"
+    "start": "node --watch ./src/server.js",
+    "seed": "node ./src/infraestructure/data/seedProducts.js"
   },
   "keywords": [],
   "author": "",
