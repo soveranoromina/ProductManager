@@ -1,6 +1,3 @@
-import { validator } from "../domain/shared/Validator.js"
-// import { workWithfile } from "../infraestructure/repositories/WorkWithFiles.js"
-import { Factory } from "../domain/factories/Factory.js"
 import { MongoDBRepository } from "../infraestructure/repositories/MongoDBRepository.js"
 import { CartModel } from "../infraestructure/database/models/CartModel.js"
 import { productManager } from "./ProductManager.js"
@@ -9,23 +6,6 @@ class CartManager {
 
     constructor() {
         this.cartRepository = new MongoDBRepository(CartModel)
-    }
-
-    getCarts = async (page = 1, limit = 10, filter = {}, sort) => {
-        try {
-            const filterQuery = {} ? filter = {} : filter.filter
-            let sortOrder = {}
-            if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null }
-            const params = {
-                page,
-                limit,
-                sort: sortOrder,
-            }
-            const carts = await this.cartRepository.getAll(filterQuery, params)
-            return carts
-        } catch (error) {
-            throw new Error(error)
-        }
     }
 
     getCartById = async (id) => {
@@ -48,7 +28,7 @@ class CartManager {
     }
 
     createCart = async () => {
-        try{
+        try {
             const cart = await this.cartRepository.create()
             return cart
         } catch (error) {
@@ -56,31 +36,99 @@ class CartManager {
         }
     }
 
-addProductToCart = async (idCart, idProduct) => {
-    try {
-        const product = await productManager.getProductById(idProduct)
-        let cart = await this.getCartById(idCart)
-
-        const products = cart.products? cart.products : []
-        const productInCart = products.find(p => String(p.id) === String(idProduct))
-        if (productInCart) {
-            if (productInCart.quantity >= product.stock) {
-                throw new Error("No hay más stock del producto")
+    addProductToCart = async (cid, pid, quantity = 1) => {
+        try {
+            const product = await productManager.getProductById(pid)
+            const cart = await this.getCartById(cid)
+            const productInCart = cart.products.find(p => String(p.id._id) === String(pid))
+            if (productInCart) {
+                if ((productInCart.quantity += Number(quantity)) >= product.stock) {
+                    throw new Error("No hay más stock del producto")
+                }
+            } else {
+                cart.products.push({
+                    id: pid,
+                    quantity: Number(quantity)
+                })
             }
-            productInCart.quantity += 1
-        } else {
-            cart.products.push({
-                id: idProduct,
-                quantity: 1
-            })
-        }
-        cart = await this.cartRepository.update(idCart, cart)
-        return cart
+            const updatedCart = await this.cartRepository.update(
+                cid,
+                { products: cart.products },
+                { new: true }
+            )
+            return updatedCart
 
-    } catch (error) {
-        throw error
+        } catch (error) {
+            throw error
+        }
+    }
+
+    updateProductsFromCart = async (cid, products) => {
+        try {
+            await this.getCartById(cid)
+            for (const p of products) {
+                await productManager.getProductById(p.id)
+             }
+            const updatedCart = await this.cartRepository.update(
+                cid,
+                { products: products },
+                { new: true }
+            )
+            return updatedCart
+        } catch (error) {
+            throw error
+        }
+    }
+
+
+    deleteProductFromCart = async (cid, pid, quantity = 1) => {
+        try {
+            const cart = await this.getCartById(cid)
+            if (cart.products.length === 0) throw new Error(`No hay productos`)
+            await productManager.getProductById(pid)
+            const productInCart = cart.products.find(p => String(p.id._id) === String(pid))
+            if (productInCart) {
+                if (productInCart.quantity === 1) {
+                    cart.products = cart.products.filter(
+                        p => String(p.id._id) !== String(pid)
+                    )
+                }
+                productInCart.quantity -= Number(quantity)
+            } else {
+                throw new Error(`No existe el producto ${pid} en el carrito ${cid}`)
+            }
+            const updatedCart = await this.cartRepository.update(
+                cid,
+                { products: cart.products },
+                { new: true }
+            )
+            return updatedCart
+
+        } catch (error) {
+            throw error
+        }
+    }
+
+    deleteAllProducts = async (cid) => {
+        try {
+            const cart = await this.getCartById(cid)
+            if (cart.products.length === 0) {
+                throw new Error(`No hay productos`)
+            } else {
+                cart.products = []
+            }
+            const updatedCart = await this.cartRepository.update(
+                cid,
+                { products: cart.products },
+                { new: true }
+            )
+            return updatedCart
+
+        } catch (error) {
+            throw error
+        }
     }
 }
-}
+
 
 export const cartManager = new CartManager()
