@@ -2,16 +2,16 @@ import { Router } from "express";
 import { productManager } from "../manager/ProductManager.js"
 const router = Router();
 
-router.get("/", async (req, res, next) => {
+router.post("/all", async (req, res, next) => {
     try {
         const { page, limit, sort } = req.query;
         const filter = req.body;
         const response = await productManager.getProducts(page, limit, filter, sort);
         const nextPage = response.hasNextPage
-            ? `http://localhost:8080/api/products?page=${response.nextPage}`
+            ? `http://localhost:8080/api/products/all?page=${response.nextPage}`
             : null;
         const prevPage = response.hasPrevPage
-            ? `http://localhost:8080/api/products?page=${response.prevPage}`
+            ? `http://localhost:8080/api/products/all?page=${response.prevPage}`
             : null;
         res.json({
             payload: response.docs,
@@ -25,6 +25,15 @@ router.get("/", async (req, res, next) => {
             nextLink: nextPage,
             prevLink: prevPage,
         });
+    } catch (error) {
+        next(error);
+    }
+})
+
+router.get("/:id", async (req, res, next) => {
+    try {;
+        const product = await productManager.getProductById(req.params.id);
+        res.json(product);
     } catch (error) {
         next(error);
     }
@@ -45,22 +54,9 @@ router.post("/", async (req, res, next) => {
     }
 })
 
-router.get("/:id", async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const product = await productManager.getProductById(id);
-        res.json(product);
-    } catch (error) {
-        next(error);
-    }
-})
-
 router.put("/:id", async (req, res, next) => {
     try {
-        console.log(req.params, req.body)
-        const { id } = req.params;
-        const updatedProduct = req.body
-        const product = await productManager.updateProduct(id, updatedProduct);
+        const product = await productManager.updateProduct(req.params.id, req.body);
         const io = req.app.get("socketServer");
         const { socketId } = req.body;
         if (socketId) {
@@ -75,9 +71,7 @@ router.put("/:id", async (req, res, next) => {
 
 router.delete("/:id", async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const product = await productManager.deleteProduct(id);
-        console.log(product)
+        const product = await productManager.deleteProduct(req.params.id);
         const io = req.app.get("socketServer");
         const { socketId } = req.body;
         if (socketId) {

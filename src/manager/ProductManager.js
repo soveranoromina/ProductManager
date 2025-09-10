@@ -1,5 +1,4 @@
 import { validator } from "../domain/shared/Validator.js"
-// import { workWithfile } from "../infraestructure/repositories/WorkWithFiles.js"
 import { Factory } from "../domain/factories/Factory.js"
 import { MongoDBRepository } from "../infraestructure/repositories/MongoDBRepository.js"
 import { ProductModel } from "../infraestructure/database/models/ProductModel.js"
@@ -7,25 +6,25 @@ import { ProductModel } from "../infraestructure/database/models/ProductModel.js
 class ProductManager {
 
     constructor() {
-        this.productRepository = new MongoDBRepository(ProductModel);
+        this.productRepository = new MongoDBRepository(ProductModel)
     }
 
     getProducts = async (page = 1, limit = 10, filter = {}, sort) => {
         try {
             const filterQuery = {} ? filter = {} : filter.filter
-            let sortOrder = {};
-            if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null; }
+            let sortOrder = {}
+            if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null }
             const params = {
                 page,
                 limit,
                 sort: sortOrder,
-            };
-            const products = await this.productRepository.getAll(filterQuery, params);
-            return products;
+            }
+            const products = await this.productRepository.getAll(filterQuery, params)
+            return products
         } catch (error) {
-            throw new Error(error);
+            throw error
         }
-    };
+    }
 
     getProductById = async (id) => {
         try {
@@ -57,7 +56,7 @@ class ProductManager {
             const product = await this.getProductById(id)
             let updateProduct = { ...product }
             for (const key of Object.keys(object)) {
-                updateProduct[key] = object[key];
+                updateProduct[key] = object[key]
             }
             const productValidate = Factory.create("product", updateProduct, "update")
             updateProduct = await this.productRepository.update(id, productValidate)
