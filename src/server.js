@@ -24,7 +24,7 @@ app.set("views", `${process.cwd()}/src/views`);
 app.set("view engine", 'handlebars');
 app.use('/views', viewRouter);
 
-connection.initLocalMongoDB()
+connection.initMongoDB()
 
 const httpServer =  app.listen(8080, () => console.log("Servidor escuchando en el puerto 8080"));
 
