@@ -68,7 +68,7 @@ class CartManager {
             await this.getCartById(cid)
             for (const p of products) {
                 await productManager.getProductById(p.id)
-             }
+            }
             const updatedCart = await this.cartRepository.update(
                 cid,
                 { products: products },
@@ -87,13 +87,13 @@ class CartManager {
             if (cart.products.length === 0) throw new Error(`No hay productos`)
             await productManager.getProductById(pid)
             const productInCart = cart.products.find(p => String(p.id._id) === String(pid))
+            console.log(productInCart)
             if (productInCart) {
-                if (productInCart.quantity === 1) {
+                if ((productInCart.quantity -= Number(quantity)) <= 0) {
                     cart.products = cart.products.filter(
                         p => String(p.id._id) !== String(pid)
                     )
                 }
-                productInCart.quantity -= Number(quantity)
             } else {
                 throw new Error(`No existe el producto ${pid} en el carrito ${cid}`)
             }
