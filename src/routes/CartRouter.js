@@ -22,13 +22,14 @@ router.post("/", async (req, res, next) => {
 
 router.post("/:cid/product/:pid", async (req, res, next) => {
   try {
-    const socketId = req.query.socket
+
     const cart = await cartManager.addProductToCart(req.params.cid, req.params.pid, req.query.quantity)
+    res.json(cart)
     const io = req.app.get("socketServer")
+    const socketId = req.query.socket
     if (socketId) {
       io.to(socketId).emit('productAdded', `Producto con el id ${req.params.pid} agregado al carrito ${req.params.cid}`, cart)
     }
-    res.json(cart)
   } catch (error) {
     next(error)
   }
@@ -45,13 +46,14 @@ router.put("/:cid", async (req, res, next) => {
 
 router.delete("/:cid/product/:pid", async (req, res, next) => {
   try {
-    const socketId = req.query.socket
+
     const cart = await cartManager.deleteProductFromCart(req.params.cid, req.params.pid, req.query.quantity)
+    res.json(cart)
     const io = req.app.get("socketServer")
+    const socketId = req.query.socket
     if (socketId) {
       io.to(socketId).emit('productDeleted', `Producto con el id ${pid} fue eliminado del carrito ${cid}`, cart)
     }
-    res.json(cart)
   } catch (error) {
     next(error)
   }
@@ -59,13 +61,13 @@ router.delete("/:cid/product/:pid", async (req, res, next) => {
 
 router.delete("/:cid", async (req, res, next) => {
   try {
-    const socketId = req.query.socket
     const cart = await cartManager.deleteAllProducts(req.params.cid)
+    res.json(cart)
     const io = req.app.get("socketServer")
+    const socketId = req.query.socket
     if (socketId) {
       io.to(socketId).emit('productsDeleted', `Carrito vaciado`, cart)
     }
-    res.json(cart)
   } catch (error) {
     next(error)
   }
