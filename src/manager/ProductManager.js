@@ -9,9 +9,11 @@ class ProductManager {
         this.productRepository = new MongoDBRepository(ProductModel)
     }
 
-    getProducts = async (page = 1, limit = 10, filter = {}, sort) => {
+    getProducts = async (page = 1, limit = 10, sort, category, status = "true") => {
         try {
-            const filterQuery = {} ? filter = {} : filter.filter
+            const filter = {}
+            category !== null ? filter.category = category : filter
+            filter.status = status
             let sortOrder = {}
             if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null }
             const params = {
@@ -19,7 +21,7 @@ class ProductManager {
                 limit,
                 sort: sortOrder,
             }
-            const products = await this.productRepository.getAll(filterQuery, params)
+            const products = await this.productRepository.getAll(filter, params)
             return products
         } catch (error) {
             throw error
