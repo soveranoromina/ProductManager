@@ -9,10 +9,10 @@ class ProductManager {
         this.productRepository = new MongoDBRepository(ProductModel)
     }
 
-    getProducts = async (page = 1, limit = 10, sort, category, status = "true") => {
+    getProducts = async (page = 1, limit = 10, sort, category = "", status = "true") => {
         try {
             const filter = {}
-            category !== null ? filter.category = category : filter
+            category !== "" ? filter.category = category : filter
             filter.status = status
             let sortOrder = {}
             if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null }
@@ -43,8 +43,7 @@ class ProductManager {
             validator.isEmpty(object)
             const productValidate = Factory.create("product", object, "add")
             const product = await this.productRepository.create(productValidate)
-            return product
-
+            return {product, "status":"created"}
         } catch (error) {
             throw error
         }
@@ -56,14 +55,13 @@ class ProductManager {
             validator.isEmpty(object)
             if ('id' in object) throw new Error("No se puede modificar el campo 'id'")
             const product = await this.getProductById(id)
-            let updateProduct = { ...product }
+            let updateProduct = product
             for (const key of Object.keys(object)) {
                 updateProduct[key] = object[key]
             }
             const productValidate = Factory.create("product", updateProduct, "update")
             updateProduct = await this.productRepository.update(id, productValidate)
-            return updateProduct
-            
+            return {updateProduct, "status":"updated"}
         } catch (error) {
             throw error
         }
@@ -72,7 +70,7 @@ class ProductManager {
     deleteProduct = async (id) => {
         try {
             await this.productRepository.delete(id)
-            return id
+            return {"message" : `El producto de id: ${id} ha sido eliminado`, "status":"deleted"}
         } catch (error) {
             throw error
         }
