@@ -13,10 +13,10 @@ El servidor está basado en Node.js y Express, escuchando en el puerto 8080. Se 
 /carts
 
 Estos endpoints están implementados mediante el router de Express y cuentan con las siguientes características:
-■ MongoDB como sistema de persistencia principal.
-■ Todos los endpoints necesarios para trabajar con productos y carritos están definidos y funcionales.
-■ Se utiliza Handlebars como motor de plantillas para las vistas.
-■ Se implementa WebSocket (Socket.io) para comunicación en tiempo real entre cliente y servidor.
+- MongoDB como sistema de persistencia principal.
+- Todos los endpoints necesarios para trabajar con productos y carritos están definidos y funcionales.
+- Se utiliza Handlebars como motor de plantillas para las vistas.
+- Se implementa WebSocket (Socket.io) para comunicación en tiempo real entre cliente y servidor.
 
 # 📍 API
 
