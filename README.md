@@ -23,7 +23,7 @@ Estos endpoints están implementados mediante el router de Express y cuentan con
 La API estará disponible en `http://localhost:8080` con los siguientes endpoints:
 
 ### Productos
-- `GET /api/products/?param=value` - Obtener todos los productos -- Se pueden utilizar filtros de busqueda por parametros(sort [asc, desc], page, status[true, false], category["Alimentos", "Bebidas", "Higiene", "Limpieza", "Cosmetica", "Ropa", "Juguetes"], limit).
+- `GET /api/products?param=value` - Obtener todos los productos -- Se pueden utilizar filtros de busqueda por parametros(sort [asc, desc], page, status[true, false], category["Alimentos", "Bebidas", "Higiene", "Limpieza", "Cosmetica", "Ropa", "Juguetes"], limit).
 - `POST /api/products/` - Crear un nuevo producto.
 - `GET /api/products/:id` - Obtener un producto por ID.
 - `PUT /api/products/:id` - Actualizar producto.
