@@ -193,7 +193,6 @@ form.onsubmit = async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...data, socketId: socket.id }),
     });
-    console.log(response)
     if (!response.ok) {
       const errorData = await response.json();
       const message = `Error del backend: ${errorData.message}`
@@ -212,16 +211,16 @@ form.onsubmit = async (e) => {
 };
 
 socket.on('newProduct', (product) => {
-  const div = createProductDiv(product);
+  const div = createProductDiv(product.product);
   prods.appendChild(div);
 });
 
 socket.on('updatedProduct', (product) => {
-  const existingDiv = document.getElementById(`product-${product._id}`);
+  const existingDiv = document.getElementById(`product-${product.updateProduct._id}`);
   if (existingDiv) {
-    existingDiv.querySelector("h3").textContent = `${product.title} - $${product.price}`;
+    existingDiv.querySelector("h3").textContent = `${product.updateProduct.title} - $${product.updateProduct.price}`;
   } else {
-    const div = createProductDiv(product);
+    const div = createProductDiv(product.updateProduct);
     prods.appendChild(div);
   }
 });
