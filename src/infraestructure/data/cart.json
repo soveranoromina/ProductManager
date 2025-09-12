@@ -9,6 +9,14 @@
       {
         "id": 10,
         "quantity": 1
+      },
+      {
+        "id": null,
+        "quantity": 1
+      },
+      {
+        "id": null,
+        "quantity": 1
       }
     ]
   },

@@ -1,27 +1,38 @@
 import { validator } from "../domain/shared/Validator.js"
-import { workWithfile } from "../infraestructure/repositories/WorkWithFiles.js"
 import { Factory } from "../domain/factories/Factory.js"
+import { MongoDBRepository } from "../infraestructure/repositories/MongoDBRepository.js"
+import { ProductModel } from "../infraestructure/database/models/ProductModel.js"
 
 class ProductManager {
-    constructor(path) {
-        this.path = path
+
+    constructor() {
+        this.productRepository = new MongoDBRepository(ProductModel)
     }
 
-    getProducts = async () => {
-            const products = await workWithfile.readFile(this.path)
-            if (products.length === 0) throw new Error("No existen productos")
+    getProducts = async (page = 1, limit = 10, sort, category = "", status = "true") => {
+        try {
+            const filter = {}
+            category !== "" ? filter.category = category : filter
+            filter.status = status
+            let sortOrder = {}
+            if (sort) { sortOrder.price = sort === "asc" ? 1 : sort === "desc" ? -1 : null }
+            const params = {
+                page,
+                limit,
+                sort: sortOrder,
+            }
+            const products = await this.productRepository.getAll(filter, params)
             return products
+        } catch (error) {
+            throw error
+        }
     }
 
     getProductById = async (id) => {
         try {
-            const products = await this.getProducts()
-            const product = products.find((p) => p.id === Number(id))
-
+            const product = await this.productRepository.getById(id)
             if (!product) throw new Error("Producto no encontrado")
-
             return product
-
         } catch (error) {
             throw error
         }
@@ -30,18 +41,9 @@ class ProductManager {
     addProduct = async (object) => {
         try {
             validator.isEmpty(object)
-            const products = await this.getProducts()
-            const id = validator.generateId(products)
-            const productValidate = Factory.create("product", id, object, "add")
-            const newProduct = { ...productValidate }
-            products.push(newProduct)
-            await workWithfile.writeFile(this.path, JSON.stringify(products, null, 2))
-
-            return {
-                product: newProduct,
-                status: "new"
-            }
-
+            const productValidate = Factory.create("product", object, "add")
+            const product = await this.productRepository.create(productValidate)
+            return {product, "status":"created"}
         } catch (error) {
             throw error
         }
@@ -50,26 +52,16 @@ class ProductManager {
 
     updateProduct = async (id, object) => {
         try {
-
             validator.isEmpty(object)
             if ('id' in object) throw new Error("No se puede modificar el campo 'id'")
-
-            const products = await this.getProducts()
-            await this.getProductById(id)
-
-            const i = products.findIndex(p => p.id === Number(id))
-            const product = { ...products[i], ...object }
-
-            Factory.create("product", id, product, "update")
-            products[i] = product
-            
-            await workWithfile.writeFile(this.path, JSON.stringify(products, null, 2))
-
-            return {
-                product,
-                status: "updated"
+            const product = await this.getProductById(id)
+            let updateProduct = product
+            for (const key of Object.keys(object)) {
+                updateProduct[key] = object[key]
             }
-
+            const productValidate = Factory.create("product", updateProduct, "update")
+            updateProduct = await this.productRepository.update(id, productValidate)
+            return {updateProduct, "status":"updated"}
         } catch (error) {
             throw error
         }
@@ -77,14 +69,8 @@ class ProductManager {
 
     deleteProduct = async (id) => {
         try {
-            const products = await this.getProducts()
-            await this.getProductById(id)
-            const newArray = products.filter((u) => u.id !== Number(id))
-            await workWithfile.writeFile(this.path, JSON.stringify(newArray))
-            return {
-                id: id,
-                status: "deleted"
-            }
+            await this.productRepository.delete(id)
+            return {"message" : `El producto de id: ${id} ha sido eliminado`, "status":"deleted"}
         } catch (error) {
             throw error
         }
@@ -92,4 +78,4 @@ class ProductManager {
 
 }
 
-export const productManager = new ProductManager('./src/infraestructure/data/products.json')
+export const productManager = new ProductManager()

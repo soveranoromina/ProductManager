@@ -1,4 +1,4 @@
-#prods {
+#cart {
   display: flex;
   flex-direction: column; 
   gap: 20px; 
@@ -7,7 +7,7 @@
   margin: 30px auto; 
 }
 
-#prods div {
+#cart div {
   background-color: #ffffff;
   padding: 20px;
   border-radius: 12px;
@@ -18,18 +18,18 @@
   transition: transform 0.2s ease, background-color 0.2s ease; 
 }
 
-#prods div:hover {
+#cart div:hover {
   background-color: #fdf1f5;
   transform: translateY(-5px); 
 }
 
-#prods h3 {
+#cart h3 {
   margin: 0 0 10px 0; 
   font-size: 1.2rem;
   color: #333;
 }
 
-#prods p {
+#cart p {
   margin: 4px 0;
   font-size: 0.95rem;
   color: #555;
@@ -52,45 +52,4 @@ button {
 button:hover {
   background-color: #c73c68;
   transform: scale(1.05);
-}
-
-#pagination {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-#cart {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 250px;
-  max-height: 300px;
-  overflow-y: auto;
-  background: #fff;
-  border: 2px solid #ff85a9;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
-  font-family: Arial, sans-serif;
-  z-index: 9999;
-}
-
-#cart h3 {
-  margin: 0 0 10px;
-  font-size: 16px;
-  color: #ff4d88;
-  text-align: center;
-}
-
-#cart ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#cart li {
-  font-size: 14px;
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
 }

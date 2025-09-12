@@ -4,16 +4,20 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "npm i express express-handlebars socket.io",
-    "start": "node --watch ./src/server.js"
+    "build": "npm i express express-handlebars socket.io mongoose mongoose-paginate-v2 dotenv",
+    "start": "node --watch ./src/server.js",
+    "seed": "node ./src/infraestructure/data/seedProducts.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
+    "mongoose": "^8.18.0",
+    "mongoose-paginate-v2": "^1.9.1",
     "socket.io": "^4.8.1"
   }
 }
