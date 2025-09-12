@@ -30,7 +30,7 @@ class CartManager {
     createCart = async () => {
         try {
             const cart = await this.cartRepository.create()
-            return cart
+            return {cart, "status": "created"}
         } catch (error) {
             throw error
         }
@@ -51,12 +51,8 @@ class CartManager {
                     quantity: Number(quantity)
                 })
             }
-            const updatedCart = await this.cartRepository.update(
-                cid,
-                { products: cart.products },
-                { new: true }
-            )
-            return updatedCart
+            const updatedCart = await this.cartRepository.update(cid, { products: cart.products })
+            return {"cart": updatedCart, "status":"updated"}
 
         } catch (error) {
             throw error
@@ -69,12 +65,8 @@ class CartManager {
             for (const p of products) {
                 await productManager.getProductById(p.id)
             }
-            const updatedCart = await this.cartRepository.update(
-                cid,
-                { products: products },
-                { new: true }
-            )
-            return updatedCart
+            const updatedCart = await this.cartRepository.update(cid, { products: products })
+            return {"cart": updatedCart, "status":"updated"}
         } catch (error) {
             throw error
         }
@@ -87,7 +79,6 @@ class CartManager {
             if (cart.products.length === 0) throw new Error(`No hay productos`)
             await productManager.getProductById(pid)
             const productInCart = cart.products.find(p => String(p.id._id) === String(pid))
-            console.log(productInCart)
             if (productInCart) {
                 if ((productInCart.quantity -= Number(quantity)) <= 0) {
                     cart.products = cart.products.filter(
@@ -97,12 +88,8 @@ class CartManager {
             } else {
                 throw new Error(`No existe el producto ${pid} en el carrito ${cid}`)
             }
-            const updatedCart = await this.cartRepository.update(
-                cid,
-                { products: cart.products },
-                { new: true }
-            )
-            return updatedCart
+            const deletedCart = await this.cartRepository.update(cid, { products: cart.products })
+            return {"cart": deletedCart, "status":"deleted"}
 
         } catch (error) {
             throw error
@@ -117,13 +104,8 @@ class CartManager {
             } else {
                 cart.products = []
             }
-            const updatedCart = await this.cartRepository.update(
-                cid,
-                { products: cart.products },
-                { new: true }
-            )
-            return updatedCart
-
+            const deletedCart = await this.cartRepository.update(cid, { products: cart.products })
+            return {"cart": deletedCart, "status":"deleted"}
         } catch (error) {
             throw error
         }
