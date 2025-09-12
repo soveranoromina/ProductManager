@@ -1,7 +1,7 @@
 const socket = io();
 const prods = document.getElementById('prods');
 const pagination = document.getElementById('pagination');
-let currentUrl = "/api/products/all"
+let currentUrl = "/api/products"
 let cartID = ""
 const cartDiv = document.getElementById('cart');
 
@@ -42,9 +42,9 @@ async function createCart() {
       method: "POST",
       headers: { "Content-Type": "application/json" }
     });
-
+    cartDiv.style.display = "block";
     const data = await response.json();
-    return data._id;
+    return data.cart._id;
   } catch (err) {
     console.error("Error en el CREATE:", err);
   }
@@ -58,7 +58,7 @@ async function addProductToCart(pid) {
     });
 
     const data = await response.json();
-    console.log("Producto agregado:", data);
+    console.log("Producto agregado:", data.cart);
   } catch (err) {
     console.error("Error en el UPDATE:", err);
   }
@@ -77,7 +77,7 @@ async function getProducts(url = currentUrl) {
     currentUrl = url;
     console.log(url)
     const response = await fetch(`${url}?sort=asc`, {
-      method: "POST",
+      method: "GET",
       headers: { "Content-Type": "application/json" }
     });
 
@@ -115,6 +115,20 @@ async function getProducts(url = currentUrl) {
   }
 }
 
+function createCartButton(cid) {
+  const btn = document.createElement("button");
+  btn.textContent = "ver carrito";
+
+  btn.addEventListener("click", () => {
+    localStorage.setItem("socketId", socket.id);
+    console.log(socket.id)
+    window.open(`http://localhost:8080/views/cart/${cid}`, "_blank");
+  });
+
+  return btn;
+}
+
+
 async function getCart(cartId) {
   try {
     const response = await fetch(`/api/carts/${cartId}`);
@@ -143,7 +157,7 @@ async function getCart(cartId) {
     totalDiv.style.fontWeight = "bold";
     totalDiv.textContent = `💰 Total: $${total.toFixed(2)}`;
     cartDiv.appendChild(totalDiv);
-
+    cartDiv.appendChild(createCartButton(cartId));
   } catch (error) {
     console.error("Error cargando carrito:", error);
   }
@@ -157,7 +171,7 @@ socket.on('alertProduct', (message) => {
 
 socket.on('productAdded', (message, cart) => {
   console.log(message, cart._id);
-  getCart(cart._id)
+  getCart(cart.cart._id)
 });
 
 window.addEventListener("DOMContentLoaded", () => getProducts());
