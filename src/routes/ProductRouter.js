@@ -7,10 +7,10 @@ router.get("/", async (req, res, next) => {
         const { page, limit, sort, category, status } = req.query;
         const response = await productManager.getProducts(page, limit, sort, category, status);
         const nextPage = response.hasNextPage
-            ? `http://localhost:8080/api/products/all?page=${response.nextPage}`
+            ? `http://localhost:8080/api/products?page=${response.nextPage}`
             : null;
         const prevPage = response.hasPrevPage
-            ? `http://localhost:8080/api/products/all?page=${response.prevPage}`
+            ? `http://localhost:8080/api/products?page=${response.prevPage}`
             : null;
         res.json({
             payload: response.docs,
